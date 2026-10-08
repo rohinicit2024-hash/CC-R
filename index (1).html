@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harbor Card – Credit Card Processing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav"></div>
+
+<!-- ===== USER LOGIN ===== -->
+<main class="view auth" id="view-login">
+  <section class="auth-side">
+    <a class="brand" href="#/login">Harbor Card</a>
+    <div>
+      <h1>Every payment is checked twice.</h1>
+      <p>Approve each purchase with your own payment password, then confirm it with a one-time code. Your history shows exactly what was charged and when.</p>
+    </div>
+    <p style="color:#8fa3b6;margin:0">Demo project: data stays in this browser.</p>
+  </section>
+  <section class="auth-main">
+    <div class="auth-box">
+      <div class="tabs" role="tablist">
+        <button class="tab active" id="tabLogin" role="tab" aria-selected="true">Sign in</button>
+        <button class="tab" id="tabRegister" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <form id="loginForm" novalidate>
+        <div class="alert alert-error" id="loginMsg" role="alert" hidden></div>
+        <div class="field"><label for="lUser">Username</label><input id="lUser" autocomplete="username"></div>
+        <div class="field"><label for="lPass">Password</label><input id="lPass" type="password" autocomplete="current-password"></div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+      </form>
+      <form id="registerForm" novalidate hidden>
+        <div class="alert alert-error" id="regMsg" role="alert" hidden></div>
+        <div class="field"><label for="rHolder">Card holder name</label><input id="rHolder" autocomplete="name"></div>
+        <div class="field"><label for="rUser">Username</label><input id="rUser" autocomplete="username"><small>3–20 letters, numbers or underscores.</small></div>
+        <div class="field"><label for="rPass">Login password</label><input id="rPass" type="password" autocomplete="new-password"><small>At least 8 characters.</small></div>
+        <div class="field"><label for="rPay">Payment password</label><input id="rPay" type="password" autocomplete="off"><small>You will enter this to approve every payment. It must differ from your login password.</small></div>
+        <div class="field"><label for="rLimit">Credit limit</label>
+          <select id="rLimit"><option value="1000">1,000</option><option value="2500">2,500</option><option value="5000" selected>5,000</option><option value="10000">10,000</option></select></div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Create account</button>
+      </form>
+      <p class="auth-foot"><a href="#/adminlogin">Administrator sign in</a></p>
+    </div>
+  </section>
+</main>
+
+<!-- ===== ADMIN LOGIN ===== -->
+<main class="view auth" id="view-adminlogin">
+  <section class="auth-side">
+    <a class="brand" href="#/login">Harbor Card</a>
+    <div><h1>Administrator access</h1><p>Review membership and transaction totals for the whole system.</p></div>
+    <span></span>
+  </section>
+  <section class="auth-main">
+    <div class="auth-box">
+      <h2>Administrator sign in</h2>
+      <form id="adminForm" novalidate>
+        <div class="alert alert-error" id="adminMsg" role="alert" hidden></div>
+        <div class="field"><label for="aUser">Username</label><input id="aUser" autocomplete="username"></div>
+        <div class="field"><label for="aPass">Password</label><input id="aPass" type="password" autocomplete="current-password"></div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+      </form>
+      <p class="auth-foot"><a href="#/login">Back to member sign in</a></p>
+    </div>
+  </section>
+</main>
+
+<!-- ===== DASHBOARD ===== -->
+<main class="view container" id="view-dashboard">
+  <div class="page-head">
+    <div><h1 id="welcome">Welcome back</h1><p>Here is where your credit stands today.</p></div>
+    <a class="btn btn-primary" href="#/payment">Make a payment</a>
+  </div>
+  <div class="grid grid-2">
+    <div class="credit-card" aria-label="Your card">
+      <div class="cc-top"><span class="cc-chip"></span><span class="cc-label">Harbor Card Credit</span></div>
+      <div><div class="cc-label">Available credit</div><div class="cc-amount num" id="ccAvail"></div></div>
+      <div>
+        <div class="cc-number" id="ccNumber"></div>
+        <div class="cc-bottom" style="margin-top:.7rem"><span id="ccHolder"></span><span class="num" id="ccExpiry"></span></div>
+      </div>
+    </div>
+    <section class="panel">
+      <h2>Spending summary</h2>
+      <dl class="stat-list">
+        <div class="stat"><dt>Credit limit</dt><dd id="sLimit"></dd></div>
+        <div class="stat"><dt>Total spent</dt><dd id="sSpent"></dd></div>
+        <div class="stat"><dt>Spent this month</dt><dd id="sMonth"></dd></div>
+        <div class="stat"><dt>Average payment</dt><dd id="sAvg"></dd></div>
+        <div class="stat"><dt>Largest payment</dt><dd id="sLargest"></dd></div>
+        <div class="stat"><dt>Transactions</dt><dd id="sCount"></dd></div>
+      </dl>
+      <div class="meter" id="meter" role="progressbar" aria-label="Credit used" aria-valuemin="0" aria-valuemax="100"><span id="meterFill"></span></div>
+      <div class="meter-caption"><span id="meterUsed"></span><span id="meterLeft"></span></div>
+    </section>
+  </div>
+  <section class="panel" style="margin-top:1.25rem">
+    <div class="page-head" style="margin-bottom:.8rem"><h2 style="margin:0">Recent transactions</h2><a href="#/history">View all</a></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Transaction ID</th><th>Description</th><th class="right">Amount</th><th>Status</th></tr></thead>
+      <tbody id="recentRows"></tbody>
+    </table></div>
+  </section>
+</main>
+
+<!-- ===== PROCESS PAYMENT ===== -->
+<main class="view container" id="view-payment">
+  <div class="page-head"><div><h1>Process payment</h1><p>Available credit: <strong id="payAvail" class="num"></strong></p></div></div>
+  <div class="grid grid-2">
+    <section class="panel">
+      <form id="payForm" novalidate>
+        <div class="alert alert-error" id="payMsg" role="alert" hidden></div>
+        <div class="field"><label for="pHolder">Card holder</label><input id="pHolder" readonly></div>
+        <div class="field"><label for="pCard">Paying with</label><input id="pCard" readonly></div>
+        <div class="field"><label for="pDesc">Pay to</label><input id="pDesc" maxlength="60" placeholder="Store or service name"></div>
+        <div class="field"><label for="pAmount">Amount</label><input id="pAmount" type="number" min="0.01" step="0.01" inputmode="decimal"></div>
+        <div class="field"><label for="pPass">Payment password</label><input id="pPass" type="password" autocomplete="off"><small>The payment password you created when you opened your account.</small></div>
+        <div class="actions"><button class="btn btn-primary" type="submit">Continue to verification</button><a class="btn btn-outline" href="#/dashboard">Cancel</a></div>
+      </form>
+    </section>
+    <section class="panel">
+      <h2>How a payment works</h2>
+      <ol class="steps">
+        <li><strong>Enter the details.</strong> Add the payee, the amount and your payment password.</li>
+        <li><strong>Confirm with a one-time code.</strong> The code is valid for 2 minutes and allows 3 attempts.</li>
+        <li><strong>Check your history.</strong> Every attempt is saved with its ID, date, time and status.</li>
+      </ol>
+    </section>
+  </div>
+</main>
+
+<!-- ===== PAYMENT OTP ===== -->
+<main class="view container" id="view-otp" style="max-width:520px">
+  <div class="page-head"><div><h1>Confirm your payment</h1><p>Enter the 6-digit code to finish.</p></div></div>
+  <section class="panel">
+    <div class="summary-row"><span class="muted">Pay to</span><strong id="oDesc"></strong></div>
+    <div class="summary-row"><span class="muted">Amount</span><strong id="oAmt" class="num"></strong></div>
+    <div class="summary-row" style="margin-bottom:1.2rem"><span class="muted">Code expires in</span><span class="timer" id="oTimer"></span></div>
+    <div class="demo-code"><span class="muted">Demo mode: no text message is sent, so your code appears here.</span><strong id="oDemo"></strong></div>
+    <form id="otpForm" novalidate>
+      <div class="alert alert-error" id="otpMsg" role="alert" hidden></div>
+      <div class="field"><label for="oCode">One-time code</label><input id="oCode" class="otp-input" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>
+      <div class="actions" style="margin-top:0">
+        <button class="btn btn-primary" type="submit">Verify and pay</button>
+        <button class="btn btn-outline" type="button" id="oResend">Send a new code</button>
+        <button class="btn btn-danger" type="button" id="oCancel">Cancel payment</button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<!-- ===== TRANSACTION HISTORY ===== -->
+<main class="view container" id="view-history">
+  <div class="page-head"><div><h1>Transaction history</h1><p>Only your own transactions appear here.</p></div><a class="btn btn-primary" href="#/payment">Make a payment</a></div>
+  <div class="alert" id="histBanner" hidden></div>
+  <section class="panel">
+    <div class="toolbar">
+      <input id="hSearch" type="search" placeholder="Search by ID or payee" aria-label="Search transactions">
+      <select id="hFilter" aria-label="Filter by status"><option value="">All statuses</option><option>Success</option><option>Failed</option><option>Cancelled</option></select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Time</th><th>Transaction ID</th><th>Card holder</th><th>Payee</th><th class="right">Amount</th><th>Status</th></tr></thead>
+      <tbody id="histRows"></tbody>
+    </table></div>
+  </section>
+</main>
+
+<!-- ===== SECURITY CENTER ===== -->
+<main class="view container" id="view-security">
+  <div class="page-head"><div><h1>Security center</h1><p id="lastLogin"></p></div></div>
+  <div class="grid grid-2">
+    <div class="grid" style="align-content:start">
+      <section class="panel">
+        <h2>Change payment password</h2>
+        <form id="spForm" novalidate>
+          <div class="alert" id="spMsg" hidden></div>
+          <div class="field"><label for="curPay">Current payment password</label><input id="curPay" type="password" autocomplete="off"></div>
+          <div class="field"><label for="newPay">New payment password</label><input id="newPay" type="password" autocomplete="off"><small>At least 6 characters and different from your login password.</small></div>
+          <button class="btn btn-primary" type="submit">Save payment password</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Change login password</h2>
+        <form id="slForm" novalidate>
+          <div class="alert" id="slMsg" hidden></div>
+          <div class="field"><label for="curPass">Current login password</label><input id="curPass" type="password" autocomplete="current-password"></div>
+          <div class="field"><label for="newPass">New login password</label><input id="newPass" type="password" autocomplete="new-password"><small>At least 8 characters.</small></div>
+          <button class="btn btn-primary" type="submit">Save login password</button>
+        </form>
+      </section>
+    </div>
+    <div class="grid" style="align-content:start">
+      <section class="panel">
+        <h2>Protection on your account</h2>
+        <ul class="checklist">
+          <li>A payment password is required for every payment.</li>
+          <li>Every payment needs a one-time code that expires after 2 minutes.</li>
+          <li>Three wrong codes cancel the payment.</li>
+          <li>Payments cannot exceed your available credit.</li>
+          <li>You can only see your own transactions.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Stay safe</h2>
+        <ul class="steps">
+          <li>Never share your payment password or one-time codes with anyone.</li>
+          <li>Use a payment password that is different from your login password.</li>
+          <li>Log out when you finish, especially on a shared computer.</li>
+          <li>Check your history regularly and look for payments you do not recognise.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ===== ADMIN DASHBOARD ===== -->
+<main class="view container" id="view-admin">
+  <div class="page-head"><div><h1>Admin dashboard</h1><p>Updates automatically every few seconds.</p></div></div>
+  <div class="grid grid-3">
+    <div class="big-stat"><div class="label">Total members</div><div class="value num" id="aMembers"></div></div>
+    <div class="big-stat"><div class="label">Logged-in members</div><div class="value num" id="aOnline"></div></div>
+    <div class="big-stat"><div class="label">Total transactions</div><div class="value num" id="aTxns"></div></div>
+  </div>
+  <div class="grid grid-2" style="margin-top:1.25rem;grid-template-columns:1fr 1fr">
+    <section class="panel">
+      <h2>Members</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Username</th><th>Card holder</th><th class="right">Limit</th><th>Status</th></tr></thead>
+        <tbody id="aMemberRows"></tbody>
+      </table></div>
+    </section>
+    <section class="panel">
+      <h2>Latest transactions</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Member</th><th class="right">Amount</th><th>Status</th></tr></thead>
+        <tbody id="aTxnRows"></tbody>
+      </table></div>
+    </section>
+  </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
